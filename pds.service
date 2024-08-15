@@ -1,0 +1,17 @@
+[Unit]
+Description=Bluesky PDS Service
+Documentation=https://github.com/p0lyw0lf/pds
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/pds
+Environment="PDS_PORT=3000"
+Environment="NODE_ENV=production"
+# potential perf issues w/ io_uring on this version of node
+Environment="UV_USE_IO_URING=0"
+EnvironmentFile=/pds/pds.env
+ExecStart=/home/ubuntu/.nix-profile/bin/node --enable-source-maps /home/ubuntu/pds/service/index.js
+
+[Install]
+WantedBy=default.target

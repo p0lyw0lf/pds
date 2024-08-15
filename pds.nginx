@@ -1,0 +1,26 @@
+server {
+	server_name girl.technology *.girl.technology;
+
+	listen [::]:443 ssl ipv6only=on;
+	listen 443 ssl;
+	ssl_certificate    	/etc/letsencrypt/live/girl.technology/fullchain.pem;
+	ssl_certificate_key	/etc/letsencrypt/live/girl.technology/privkey.pem;
+
+	index index.html;
+
+	location / {
+		proxy_pass http://localhost:3000;
+	}
+}
+
+server {
+	listen [::]:80 default_server;
+	listen 80 default_server;
+
+	server_name ~^(.+\.)?girl\.technology$;
+	if ($host ~ ^(.+\.)?girl\.technology$) {
+		return 301 https://$host$request_uri;
+	}
+
+	return 404;
+}
