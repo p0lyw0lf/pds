@@ -4,7 +4,9 @@ map $http_upgrade $connection_upgrade {
 }
 
 server {
-	server_name girl.technology *.girl.technology;
+	server_name girl.technology ~^(?<sub>.+)\.girl\.technology$;
+	root /home/ubuntu/girl.technology;
+	index index.html;
 
 	listen [::]:443 ssl http2 ipv6only=on;
 	listen 443 ssl http2;
@@ -13,7 +15,6 @@ server {
 	include /etc/letsencrypt/options-ssl-nginx.conf;
 	ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-	index index.html;
 
 	location ~ ^(/xrpc|.well-known/atproto-did) {
 		include proxy_params;
@@ -21,6 +22,24 @@ server {
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection $connection_upgrade;
 		proxy_pass http://localhost:3000;
+	}
+
+	# For girl.technology main axum site
+	location / {
+		if ($sub = '') {
+			proxy_pass http://localhost:3001;
+		}
+		proxy_pass http://localhost:3001/category/$sub;
+	}
+
+	# For girl.technology static files
+	location /static/ {
+		alias /home/ubuntu/girl.technology/static/dist/;
+		sendfile	on;
+	}
+	location /assets/ {
+		alias /home/ubuntu/girl.technology/assets/;
+		sendfile	on;
 	}
 }
 
