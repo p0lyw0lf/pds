@@ -15,7 +15,7 @@ server {
 
 	index index.html;
 
-	location / {
+	location ~ ^(/xrpc|.well-known/atproto-did) {
 		include proxy_params;
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
